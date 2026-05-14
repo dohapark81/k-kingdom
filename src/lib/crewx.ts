@@ -106,8 +106,9 @@ let initPromise: Promise<void> | null = null;
 export type ProgressReport = { progress?: number; text?: string };
 
 async function loadSdk() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const basePath = (window as any).__NEXT_DATA__?.basePath ?? "";
+  const scripts = document.querySelectorAll('script[src*="/_next/"]');
+  const src = scripts[0]?.getAttribute("src") ?? "";
+  const basePath = src.replace(/\/_next\/.*$/, "");
   const mod = await new Function("u", "return import(u)")(`${basePath}/crewx-sdk.browser.js`);
   return mod.Crewx;
 }
