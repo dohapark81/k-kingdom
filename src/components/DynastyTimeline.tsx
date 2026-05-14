@@ -105,7 +105,7 @@ export default function DynastyTimeline() {
                       borderRadius: isActive ? 6 : 0,
                       paddingLeft: isActive ? "0.6rem" : 0,
                     }}
-                    onClick={() => { setSelectedKingId(king.id); window.history.replaceState(null, "", `/timeline/${dynastyId}/${king.id}`); }}
+                    onClick={() => { setSelectedKingId(king.id); window.history.replaceState(null, "", `${process.env.__NEXT_ROUTER_BASEPATH ?? ""}/timeline/${dynastyId}/${king.id}`); }}
                   >
                     <div className="absolute rounded-full" style={{ left: "-4rem", top: "1.1rem", width: isActive ? 18 : 16, height: isActive ? 18 : 16, background: isActive ? "var(--color-accent)" : king.highlight ? dynasty.color : "var(--color-paper)", border: `2px solid ${isActive ? "var(--color-accent)" : "var(--color-line)"}`, transition: "all 0.15s" }} />
                     <span className="absolute text-right" style={{ left: "-7rem", top: "0.9rem", width: "6rem", fontSize: "0.9rem", fontFamily: "'Nanum Pen Script', cursive", color: "var(--color-ink-2)" }}>{king.reignStart}–{king.reignEnd}</span>
