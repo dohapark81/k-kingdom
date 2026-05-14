@@ -1,3 +1,13 @@
+export interface Succession {
+  father: string;
+  mother?: string;
+  birthOrder: string;
+  type: "적통세자" | "선위" | "반정" | "추대" | "찬탈" | "기타";
+  typeLabel: string;
+  legitimate: boolean;
+  note?: string;
+}
+
 export interface King {
   id: string;
   name: string;
@@ -8,6 +18,7 @@ export interface King {
   reignEnd: number;
   reignYears: number;
   summary: string;
+  succession?: Succession;
   events: { year: number; text: string }[];
   achievements: string[];
   failures: string[];
@@ -1291,10 +1302,80 @@ const birthYears: Record<string, number> = {
   "cheoljong": 1831, "gojong": 1852, "sunjong": 1874,
 };
 
+const successions: Record<string, Succession> = {
+  // ── 고려 ──
+  "taejo-goryeo": { father: "왕륭(추존 세조)", mother: "위숙왕후 한씨", birthOrder: "장남", type: "기타", typeLabel: "건국(역성혁명)", legitimate: false, note: "궁예를 축출하고 고려 건국" },
+  "hyejong": { father: "태조 왕건", mother: "장화왕후 오씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "jeongjong-goryeo": { father: "태조 왕건", mother: "신명순성왕후 유씨", birthOrder: "3남", type: "기타", typeLabel: "형 사후 계승", legitimate: false, note: "혜종 사후 왕규 제거 후 즉위" },
+  "gwangjong": { father: "태조 왕건", mother: "신명순성왕후 유씨", birthOrder: "4남", type: "선위", typeLabel: "형 정종 선위", legitimate: false },
+  "gyeongjong-goryeo": { father: "광종", mother: "대목왕후 황보씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "seongjong-goryeo": { father: "대종(추존, 태조의 아들)", mother: "선의왕후 유씨", birthOrder: "2남", type: "추대", typeLabel: "사촌 경종 사후 추대", legitimate: false, note: "경종의 유명으로 즉위" },
+  "mokjong": { father: "경종", mother: "헌애왕후(천추태후)", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "hyeonjong-goryeo": { father: "안종(추존, 태조의 손자)", mother: "헌정왕후 황보씨", birthOrder: "장남", type: "추대", typeLabel: "강조의 정변 후 추대", legitimate: false, note: "목종 폐위 후 강조가 옹립" },
+  "deokjong": { father: "현종", mother: "원성왕후 김씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "jeongjong2-goryeo": { father: "현종", mother: "원성왕후 김씨", birthOrder: "2남", type: "기타", typeLabel: "형 덕종 사후 계승", legitimate: false },
+  "munjong-goryeo": { father: "현종", mother: "원혜왕후 김씨", birthOrder: "3남", type: "기타", typeLabel: "형 정종 사후 계승", legitimate: false },
+  "sunjong-goryeo": { father: "문종", mother: "인예왕후 이씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "seonjong-goryeo": { father: "문종", mother: "인예왕후 이씨", birthOrder: "2남", type: "기타", typeLabel: "형 순종 사후 계승", legitimate: false },
+  "heonjong-goryeo": { father: "선종", mother: "사숙왕후 이씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "sukjong-goryeo": { father: "문종", mother: "인예왕후 이씨", birthOrder: "3남", type: "기타", typeLabel: "조카 헌종 폐위 후 즉위", legitimate: false },
+  "yejong-goryeo": { father: "숙종", mother: "명의왕후 유씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "injong-goryeo": { father: "예종", mother: "순덕왕후 이씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "uijong": { father: "인종", mother: "공예왕후 임씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "myeongjong": { father: "인종", mother: "공예왕후 임씨", birthOrder: "3남", type: "추대", typeLabel: "무신정변으로 추대", legitimate: false, note: "형 의종 폐위 후 무신들이 옹립" },
+  "sinjong": { father: "인종", mother: "공예왕후 임씨", birthOrder: "5남", type: "추대", typeLabel: "최충헌이 추대", legitimate: false },
+  "huijong": { father: "신종", mother: "선정왕후 김씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "gangjong": { father: "명종", mother: "의정왕후 김씨", birthOrder: "장남", type: "추대", typeLabel: "최충헌이 추대", legitimate: false },
+  "gojong-goryeo": { father: "강종", mother: "사평왕후 이씨", birthOrder: "장남", type: "추대", typeLabel: "최충헌이 추대", legitimate: false },
+  "wonjong": { father: "고종", mother: "안혜왕후 유씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "chungnyeol": { father: "원종", mother: "경창궁주 김씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "chungseon": { father: "충렬왕", mother: "제국대장공주(원나라)", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "chungsuk": { father: "충선왕", mother: "의비 야솔진씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "chunghye": { father: "충숙왕", mother: "공원왕후 홍씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "chungmok": { father: "충혜왕", mother: "덕녕공주(원나라)", birthOrder: "장남", type: "추대", typeLabel: "원나라가 추대", legitimate: false },
+  "chungjeong": { father: "충혜왕", mother: "희비 윤씨", birthOrder: "2남", type: "추대", typeLabel: "원나라가 추대", legitimate: false },
+  "gongmin": { father: "충숙왕", mother: "공원왕후 홍씨", birthOrder: "2남", type: "추대", typeLabel: "원나라가 추대", legitimate: false, note: "충정왕 폐위 후 원의 지명으로 즉위" },
+  "u-wang": { father: "공민왕(논란)", mother: "반야(신돈의 비 설)", birthOrder: "장남", type: "기타", typeLabel: "공민왕 시해 후 즉위", legitimate: false, note: "신돈의 아들이라는 논란" },
+  "chang-wang": { father: "우왕", mother: "근비 이씨", birthOrder: "장남", type: "기타", typeLabel: "부왕 폐위 후 즉위", legitimate: false },
+  "gongyang": { father: "정원부원군(신종 7대손)", mother: "국대비 왕씨", birthOrder: "장남", type: "추대", typeLabel: "이성계가 추대", legitimate: false, note: "왕씨 종친 중 이성계 세력이 옹립" },
+
+  // ── 조선 ──
+  "taejo-joseon": { father: "환조(추존, 이자춘)", mother: "의혜왕후 최씨", birthOrder: "장남", type: "기타", typeLabel: "건국(역성혁명)", legitimate: false, note: "위화도 회군 → 고려 멸망 → 조선 건국" },
+  "jeongjong": { father: "태조", mother: "신의왕후 한씨", birthOrder: "2남", type: "기타", typeLabel: "왕자의 난 후 즉위", legitimate: false, note: "이방원이 세자로 밀어 즉위시킴" },
+  "taejong": { father: "태조", mother: "신의왕후 한씨", birthOrder: "5남", type: "선위", typeLabel: "정종 선위(실질 찬탈)", legitimate: false, note: "1·2차 왕자의 난 주도 후 형 정종에게 양위받음" },
+  "sejong": { father: "태종", mother: "원경왕후 민씨", birthOrder: "3남", type: "적통세자", typeLabel: "세자 책봉 후 선위", legitimate: false, note: "형 양녕대군 폐세자 → 충녕대군이 세자 책봉" },
+  "munjong": { father: "세종", mother: "소헌왕후 심씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "danjong": { father: "문종", mother: "현덕왕후 권씨", birthOrder: "장남(외아들)", type: "적통세자", typeLabel: "적통세자", legitimate: true, note: "12세 즉위, 어머니는 출산 직후 사망" },
+  "sejo": { father: "세종", mother: "소헌왕후 심씨", birthOrder: "2남", type: "찬탈", typeLabel: "조카 단종 폐위(찬탈)", legitimate: false, note: "계유정난 → 단종 양위 형식 → 사사" },
+  "yejong": { father: "세조", mother: "정희왕후 윤씨", birthOrder: "2남", type: "적통세자", typeLabel: "세자(형 의경세자 요절)", legitimate: false, note: "형 의경세자(추존 덕종) 20세 요절 후 세자 책봉" },
+  "seongjong-joseon": { father: "의경세자(추존 덕종)", mother: "소혜왕후 한씨", birthOrder: "2남", type: "추대", typeLabel: "대비(정희왕후)가 추대", legitimate: false, note: "예종 사후 13세에 즉위. 예종의 아들이 아닌 형의 아들" },
+  "yeonsan": { father: "성종", mother: "폐비 윤씨(제헌왕후)", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true, note: "어머니 폐비 윤씨는 성종에 의해 사사됨" },
+  "jungjong": { father: "성종", mother: "정현왕후 윤씨", birthOrder: "2남(계비 소생)", type: "반정", typeLabel: "중종반정", legitimate: false, note: "연산군 폐위 후 반정 공신들이 옹립" },
+  "injong": { father: "중종", mother: "장경왕후 윤씨", birthOrder: "장남(적장자)", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "myeongjong-joseon": { father: "중종", mother: "문정왕후 윤씨", birthOrder: "2남(계비 소생)", type: "기타", typeLabel: "이복형 인종 사후 계승", legitimate: false, note: "12세 즉위, 문정왕후 수렴청정" },
+  "seonjo": { father: "덕흥대원군(중종의 서자)", mother: "하동부대부인 정씨", birthOrder: "3남", type: "추대", typeLabel: "방계 추대", legitimate: false, note: "명종에게 아들이 없어 중종의 서손자가 즉위. 최초의 방계 계승" },
+  "gwanghae": { father: "선조", mother: "공빈 김씨(후궁)", birthOrder: "2남", type: "기타", typeLabel: "세자 책봉(서자)", legitimate: false, note: "적자가 아닌 서자. 임진왜란 중 세자 책봉. 이후 적자 영창대군 탄생으로 정통성 논란" },
+  "injo": { father: "정원군(추존 원종, 선조의 5남)", mother: "인헌왕후 구씨", birthOrder: "장남", type: "반정", typeLabel: "인조반정", legitimate: false, note: "선조의 손자. 서인이 광해군 폐위 후 옹립" },
+  "hyojong": { father: "인조", mother: "인렬왕후 한씨", birthOrder: "2남", type: "기타", typeLabel: "형 소현세자 급사 후 세자 책봉", legitimate: false, note: "적장자 소현세자가 청에서 귀국 후 급사(독살설). 인조가 봉림대군을 세자로 책봉" },
+  "hyeonjong": { father: "효종", mother: "인선왕후 장씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "sukjong": { father: "현종", mother: "명성왕후 김씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
+  "gyeongjong": { father: "숙종", mother: "장희빈(희빈 장씨)", birthOrder: "장남", type: "적통세자", typeLabel: "세자(후궁 소생)", legitimate: false, note: "적모가 아닌 장희빈 소생. 모친은 인현왕후 복위 후 사사됨" },
+  "yeongjo": { father: "숙종", mother: "숙빈 최씨(후궁)", birthOrder: "4남", type: "기타", typeLabel: "형 경종 사후 계승(서자)", legitimate: false, note: "후궁 소생 서자. 경종의 세제(왕세제)로 책봉 후 즉위. 독살설 시비" },
+  "jeongjo": { father: "사도세자(추존 장조)", mother: "혜경궁 홍씨", birthOrder: "2남", type: "적통세자", typeLabel: "세손(영조의 양자로 입적)", legitimate: false, note: "아버지 사도세자가 뒤주에서 사망. 영조가 효장세자(이미 사망)의 양자로 입적시킨 뒤 세손 책봉" },
+  "sunjo": { father: "정조", mother: "수빈 박씨(후궁)", birthOrder: "2남", type: "적통세자", typeLabel: "세자(후궁 소생이나 적자 대우)", legitimate: false, note: "정비 효의왕후에게 아들이 없어 후궁 소생이 세자 책봉" },
+  "heonjong": { father: "효명세자(추존 문조, 순조의 아들)", mother: "신정왕후 조씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통(조부 순조가 세손 책봉)", legitimate: true, note: "아버지 효명세자가 대리청정 중 22세로 요절. 할아버지 순조 사후 8세에 즉위" },
+  "cheoljong": { father: "전계대원군(영조의 현손)", mother: "용성부대부인 염씨", birthOrder: "3남", type: "추대", typeLabel: "대비(순원왕후)가 추대", legitimate: false, note: "강화도에서 농사짓던 왕족. 헌종 후사 없이 사망 후 안동 김씨가 옹립. 영조의 현손(5대손)" },
+  "gojong": { father: "흥선대원군 이하응", mother: "여흥부대부인 민씨", birthOrder: "2남", type: "추대", typeLabel: "대비(신정왕후)가 추대", legitimate: false, note: "철종 후사 없이 사망. 흥선대원군이 자기 아들을 대비를 통해 왕으로 세움" },
+  "sunjong": { father: "고종", mother: "명성황후 민씨", birthOrder: "2남(적장자)", type: "기타", typeLabel: "일제 강압에 의한 즉위", legitimate: true, note: "적통이나 일제가 고종을 강제 퇴위시키고 즉위시킴. 실질적 권한 없음" },
+};
+
 for (const dynasty of dynasties) {
   for (const king of dynasty.kings) {
     if (birthYears[king.id]) {
       king.birthYear = birthYears[king.id];
+    }
+    if (successions[king.id]) {
+      king.succession = successions[king.id];
     }
   }
 }

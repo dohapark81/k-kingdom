@@ -81,6 +81,61 @@ export default function KingPanel({
         </div>
       </div>
 
+      {king.succession && (
+        <div
+          className="mt-4 p-3 rounded"
+          style={{
+            border: king.succession.legitimate
+              ? "1.5px solid var(--color-accent-2)"
+              : "1.5px dashed var(--color-ink-3)",
+            background: king.succession.legitimate
+              ? "rgba(42,90,138,0.06)"
+              : "var(--color-paper-2)",
+          }}
+        >
+          <div className="flex items-center gap-2 mb-1.5">
+            <span
+              className="px-2 py-0.5 rounded-full font-bold"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--hand)",
+                background: king.succession.legitimate ? "var(--color-accent-2)" : "var(--color-ink-3)",
+                color: "var(--color-paper)",
+              }}
+            >
+              {king.succession.legitimate ? "적통" : "비적통"}
+            </span>
+            <span
+              className="font-bold"
+              style={{
+                fontSize: "0.85rem",
+                fontFamily: "var(--hand)",
+                color: king.succession.legitimate ? "var(--color-accent-2)" : "var(--color-ink-2)",
+              }}
+            >
+              {king.succession.typeLabel}
+            </span>
+          </div>
+          <div style={{ fontSize: "0.8rem", lineHeight: 1.7 }}>
+            <div><b style={{ fontFamily: "var(--hand)" }}>부왕:</b> {king.succession.father}</div>
+            {king.succession.mother && <div><b style={{ fontFamily: "var(--hand)" }}>모후:</b> {king.succession.mother}</div>}
+            <div><b style={{ fontFamily: "var(--hand)" }}>서열:</b> {king.succession.birthOrder}</div>
+            {king.succession.note && (
+              <div
+                className="mt-1 pt-1"
+                style={{
+                  borderTop: "1px dashed var(--color-ink-3)",
+                  color: "var(--color-ink-2)",
+                  fontSize: "0.75rem",
+                }}
+              >
+                💡 {king.succession.note}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Section title="주요 사건" count={`${king.events.length}건`}>
         <ul className="pl-4 m-0 leading-relaxed list-disc" style={{ fontFamily: "'Gowun Dodum', sans-serif", fontSize: "0.85rem" }}>
           {king.events.map((e, i) => {
