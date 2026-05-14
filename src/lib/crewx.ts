@@ -1,5 +1,27 @@
 import type { King, Dynasty } from "@/data/dynasties";
 
+export interface ModelOption {
+  id: string;
+  label: string;
+  size: string;
+  vram: string;
+}
+
+export const MODELS: ModelOption[] = [
+  { id: "SmolLM2-360M-Instruct-q4f16_1-MLC",      label: "SmolLM2 360M",      size: "360M", vram: "0.4 GB" },
+  { id: "Qwen3-0.6B-q4f16_1-MLC",                  label: "Qwen3 0.6B",        size: "0.6B", vram: "1.4 GB" },
+  { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC",       label: "Llama 3.2 1B",      size: "1B",   vram: "0.9 GB" },
+  { id: "gemma-2-2b-it-q4f16_1-MLC",               label: "Gemma 2 2B",        size: "2B",   vram: "1.9 GB" },
+  { id: "Qwen3-1.7B-q4f16_1-MLC",                  label: "Qwen3 1.7B",        size: "1.7B", vram: "2.0 GB" },
+  { id: "Llama-3.2-3B-Instruct-q4f16_1-MLC",       label: "Llama 3.2 3B",      size: "3B",   vram: "2.3 GB" },
+  { id: "Phi-4-mini-instruct-q4f16_1-MLC",         label: "Phi-4 Mini",        size: "3.8B", vram: "3.4 GB" },
+  { id: "Qwen3-4B-q4f16_1-MLC",                    label: "Qwen3 4B",          size: "4B",   vram: "3.4 GB" },
+  { id: "Qwen3-8B-q4f16_1-MLC",                    label: "Qwen3 8B",          size: "8B",   vram: "5.7 GB" },
+  { id: "gemma-2-9b-it-q4f16_1-MLC",               label: "Gemma 2 9B",        size: "9B",   vram: "6.4 GB" },
+];
+
+export const DEFAULT_MODEL = "Qwen3-8B-q4f16_1-MLC";
+
 const SYSTEM_PROMPT = `당신은 한국 역사 속 왕입니다. 아래 규칙을 반드시 따르세요.
 
 ## 핵심 규칙
@@ -78,12 +100,12 @@ function buildKingPrompt(king: King, dynasty: Dynasty): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let crewxInstance: any = null;
 let currentKingId: string | null = null;
+let currentModelId: string | null = null;
 let initPromise: Promise<void> | null = null;
 
 export type ProgressReport = { progress?: number; text?: string };
 
 async function loadSdk() {
-  // public/에서 ESM으로 직접 로드 (번들러 우회)
   const mod = await new Function("u", "return import(u)")("/crewx-sdk.browser.js");
   return mod.Crewx;
 }
@@ -91,12 +113,14 @@ async function loadSdk() {
 export async function initKingEngine(
   king: King,
   dynasty: Dynasty,
+  modelId: string,
   onProgress?: (report: ProgressReport) => void,
 ): Promise<void> {
-  if (crewxInstance && currentKingId === king.id) return;
+  if (crewxInstance && currentKingId === king.id && currentModelId === modelId) return;
 
   crewxInstance = null;
   currentKingId = null;
+  currentModelId = null;
 
   const prompt = buildKingPrompt(king, dynasty);
 
@@ -105,6 +129,8 @@ export async function initKingEngine(
   }
 
   initPromise = (async () => {
+    console.log(`[CrewX] 왕 페르소나 초기화: ${king.name} / 모델: ${modelId}`);
+    console.log(`[CrewX] 프롬프트:\n${prompt}`);
     const Crewx = await loadSdk();
     const instance = await Crewx.fromConfig(
       {
@@ -113,10 +139,7 @@ export async function initKingEngine(
             id: "king",
             name: king.name,
             provider: "api/webllm",
-            inline: {
-              model: "gemma-2-2b-it-q4f16_1-MLC",
-              prompt,
-            },
+            inline: { model: modelId, prompt },
           },
         ],
       },
@@ -128,6 +151,7 @@ export async function initKingEngine(
     );
     crewxInstance = instance;
     currentKingId = king.id;
+    currentModelId = modelId;
   })();
 
   await initPromise;

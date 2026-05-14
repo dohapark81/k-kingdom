@@ -9,14 +9,19 @@ import dynamic from "next/dynamic";
 import KingPanel from "@/components/KingPanel";
 import { dynasties, getDynasty } from "@/data/dynasties";
 
-const KingChat = dynamic(() => import("@/components/KingChat"), { ssr: false });
+const KingChat = dynamic(() => import("@/components/KingChat"), {
+  ssr: false,
+  loading: () => <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-ink-3)" }}>로딩 중...</div>,
+});
 
 export default function DynastyTimeline() {
   const params = useParams();
   const dynastyId = params.dynastyId as string;
   const dynasty = getDynasty(dynastyId);
 
-  const [selectedKingId, setSelectedKingId] = useState<string | null>(null);
+  const [selectedKingId, setSelectedKingId] = useState<string | null>(
+    dynasty?.kings[0]?.id ?? null,
+  );
   const [searchOpen, setSearchOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -30,12 +35,6 @@ export default function DynastyTimeline() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
-
-  useEffect(() => {
-    if (dynasty && dynasty.kings.length > 0 && !selectedKingId) {
-      setSelectedKingId(dynasty.kings[0].id);
-    }
-  }, [dynasty, selectedKingId]);
 
   if (!dynasty) {
     return (

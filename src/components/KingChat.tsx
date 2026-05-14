@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { King, Dynasty } from "@/data/dynasties";
-import { initKingEngine, queryKing, isEngineReadyFor } from "@/lib/crewx";
+import { initKingEngine, queryKing, isEngineReadyFor, MODELS, DEFAULT_MODEL } from "@/lib/crewx";
 import type { ProgressReport } from "@/lib/crewx";
 
 interface ChatMessage {
@@ -32,6 +32,7 @@ export default function KingChat({
     isEngineReadyFor(king.id) ? { status: "ready" } : { status: "idle" },
   );
   const [streamText, setStreamText] = useState("");
+  const [modelId, setModelId] = useState(DEFAULT_MODEL);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +47,7 @@ export default function KingChat({
   const startEngine = useCallback(async () => {
     setEngine({ status: "loading", label: "초기화 중...", pct: 0 });
     try {
-      await initKingEngine(king, dynasty, (report: ProgressReport) => {
+      await initKingEngine(king, dynasty, modelId, (report: ProgressReport) => {
         setEngine({
           status: "loading",
           label: report.text ?? "모델 로딩 중...",
@@ -58,7 +59,7 @@ export default function KingChat({
       const msg = e instanceof Error ? e.message : "알 수 없는 오류";
       setEngine({ status: "error", message: msg });
     }
-  }, [king, dynasty]);
+  }, [king, dynasty, modelId]);
 
   const suggestedTopics = getSuggestedTopics(king);
 
@@ -95,15 +96,35 @@ export default function KingChat({
           <div style={{ fontFamily: "var(--hand)", fontSize: "1.1rem" }}>
             {king.name}과 대화하기
           </div>
-          <div style={{ fontSize: "0.78rem", color: "var(--color-ink-2)", lineHeight: 1.8 }}>
-            브라우저에서 AI 모델을 로딩합니다 (WebGPU)
-            <br />
-            첫 실행 시 모델 다운로드가 필요합니다
+          <select
+            value={modelId}
+            onChange={(e) => setModelId(e.target.value)}
+            style={{
+              width: "100%",
+              maxWidth: "18rem",
+              padding: "0.45rem 0.6rem",
+              fontSize: "0.8rem",
+              border: "1.5px solid var(--color-line)",
+              borderRadius: "6px",
+              background: "var(--color-paper)",
+              color: "var(--color-ink)",
+              fontFamily: "'Gowun Dodum', sans-serif",
+              cursor: "pointer",
+            }}
+          >
+            {MODELS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label} ({m.size}) — VRAM {m.vram}
+              </option>
+            ))}
+          </select>
+          <div style={{ fontSize: "0.7rem", color: "var(--color-ink-3)" }}>
+            첫 실행 시 모델 다운로드 필요 · WebGPU (Chrome 113+)
           </div>
           <button
             onClick={startEngine}
             style={{
-              marginTop: "0.5rem",
+              marginTop: "0.25rem",
               padding: "0.5rem 1.5rem",
               fontSize: "0.85rem",
               border: "none",
@@ -116,9 +137,6 @@ export default function KingChat({
           >
             대화 시작
           </button>
-          <div style={{ fontSize: "0.7rem", color: "var(--color-ink-3)", marginTop: "0.25rem" }}>
-            Chrome 113+ / Edge 113+ 필요
-          </div>
         </div>
       )}
 

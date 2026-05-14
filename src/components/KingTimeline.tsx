@@ -3,10 +3,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Topbar from "@/components/Topbar";
 import SearchModal from "@/components/SearchModal";
 import KingPanel from "@/components/KingPanel";
 import { dynasties, getDynasty, getKing } from "@/data/dynasties";
+
+const KingChat = dynamic(() => import("@/components/KingChat"), {
+  ssr: false,
+  loading: () => <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-ink-3)" }}>로딩 중...</div>,
+});
 
 export default function KingTimeline() {
   const params = useParams();
@@ -15,8 +21,8 @@ export default function KingTimeline() {
   const dynasty = getDynasty(dynastyId);
 
   const [selectedKingId, setSelectedKingId] = useState(initialKingId);
-  const [hoveredKingId, setHoveredKingId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const king = getKing(dynastyId, selectedKingId);
 
@@ -44,7 +50,7 @@ export default function KingTimeline() {
     );
   }
 
-  const activeKingId = hoveredKingId || selectedKingId;
+  const activeKingId = selectedKingId;
   const activeKing = dynasty.kings.find((k) => k.id === activeKingId) || king;
 
   return (
@@ -107,9 +113,7 @@ export default function KingTimeline() {
                       borderRadius: isActive ? 6 : 0,
                       paddingLeft: isActive ? "0.6rem" : 0,
                     }}
-                    onMouseEnter={() => setHoveredKingId(k.id)}
-                    onMouseLeave={() => setHoveredKingId(null)}
-                    onClick={() => { setSelectedKingId(k.id); window.history.replaceState(null, "", `/timeline/${dynastyId}/${k.id}`); }}
+                    onClick={() => { setSelectedKingId(k.id); setChatOpen(false); window.history.replaceState(null, "", `/timeline/${dynastyId}/${k.id}`); }}
                   >
                     <div className="absolute rounded-full" style={{ left: "-4rem", top: "1.1rem", width: isActive ? 18 : 16, height: isActive ? 18 : 16, background: isActive ? "var(--color-accent)" : k.highlight ? dynasty.color : "var(--color-paper)", border: `2px solid ${isActive ? "var(--color-accent)" : "var(--color-line)"}`, transition: "all 0.15s" }} />
                     <span className="absolute text-right" style={{ left: "-7rem", top: "0.9rem", width: "6rem", fontSize: "0.9rem", fontFamily: "'Nanum Pen Script', cursive", color: "var(--color-ink-2)" }}>{k.reignStart}–{k.reignEnd}</span>
@@ -122,8 +126,57 @@ export default function KingTimeline() {
           </div>
         </div>
 
-        <aside className="overflow-y-auto" style={{ borderLeft: "1.5px solid var(--color-line)", background: "var(--color-paper-2)" }}>
-          <KingPanel king={activeKing} dynasty={dynasty} />
+        <aside className="flex flex-col" style={{ borderLeft: "1.5px solid var(--color-line)", background: "var(--color-paper-2)", overflow: "hidden" }}>
+          <div
+            className="flex"
+            style={{
+              borderBottom: "1px solid var(--color-line)",
+              background: "var(--color-paper)",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              onClick={() => setChatOpen(false)}
+              style={{
+                flex: 1,
+                padding: "0.5rem",
+                fontSize: "0.85rem",
+                fontFamily: "var(--hand)",
+                border: "none",
+                borderBottom: !chatOpen ? "2px solid var(--color-ink)" : "2px solid transparent",
+                background: "transparent",
+                color: !chatOpen ? "var(--color-ink)" : "var(--color-ink-3)",
+                cursor: "pointer",
+              }}
+            >
+              정보
+            </button>
+            <button
+              onClick={() => setChatOpen(true)}
+              style={{
+                flex: 1,
+                padding: "0.5rem",
+                fontSize: "0.85rem",
+                fontFamily: "var(--hand)",
+                border: "none",
+                borderBottom: chatOpen ? "2px solid var(--color-accent)" : "2px solid transparent",
+                background: "transparent",
+                color: chatOpen ? "var(--color-accent)" : "var(--color-ink-3)",
+                cursor: "pointer",
+              }}
+            >
+              왕과 대화
+            </button>
+          </div>
+          <div className="flex-1" style={{ overflow: "hidden" }}>
+            {chatOpen ? (
+              <KingChat key={activeKing.id} king={activeKing} dynasty={dynasty} onClose={() => setChatOpen(false)} />
+            ) : (
+              <div className="h-full overflow-y-auto">
+                <KingPanel king={activeKing} dynasty={dynasty} />
+              </div>
+            )}
+          </div>
         </aside>
       </div>
     </div>
