@@ -60,6 +60,17 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap"
         />
+        <script
+          type="importmap"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              imports: {
+                "zod": "https://esm.run/zod",
+                "js-yaml": "https://esm.run/js-yaml",
+              },
+            }),
+          }}
+        />
       </head>
       <body
         className="min-h-full flex flex-col"
