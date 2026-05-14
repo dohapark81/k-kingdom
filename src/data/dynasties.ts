@@ -2,7 +2,7 @@ export interface Succession {
   father: string;
   mother?: string;
   birthOrder: string;
-  type: "적통세자" | "선위" | "반정" | "추대" | "찬탈" | "기타";
+  type: "적통세자" | "선위" | "반정" | "추대" | "찬탈" | "건국" | "기타";
   typeLabel: string;
   legitimate: boolean;
   note?: string;
@@ -1304,7 +1304,7 @@ const birthYears: Record<string, number> = {
 
 const successions: Record<string, Succession> = {
   // ── 고려 ──
-  "taejo-goryeo": { father: "왕륭(추존 세조)", mother: "위숙왕후 한씨", birthOrder: "장남", type: "기타", typeLabel: "건국(역성혁명)", legitimate: false, note: "궁예를 축출하고 고려 건국" },
+  "taejo-goryeo": { father: "왕륭(추존 세조)", mother: "위숙왕후 한씨", birthOrder: "장남", type: "건국", typeLabel: "건국(역성혁명)", legitimate: false, note: "궁예를 축출하고 고려 건국" },
   "hyejong": { father: "태조 왕건", mother: "장화왕후 오씨", birthOrder: "장남", type: "적통세자", typeLabel: "적통세자", legitimate: true },
   "jeongjong-goryeo": { father: "태조 왕건", mother: "신명순성왕후 유씨", birthOrder: "3남", type: "기타", typeLabel: "형 사후 계승", legitimate: false, note: "혜종 사후 왕규 제거 후 즉위" },
   "gwangjong": { father: "태조 왕건", mother: "신명순성왕후 유씨", birthOrder: "4남", type: "선위", typeLabel: "형 정종 선위", legitimate: false },
@@ -1340,7 +1340,7 @@ const successions: Record<string, Succession> = {
   "gongyang": { father: "정원부원군(신종 7대손)", mother: "국대비 왕씨", birthOrder: "장남", type: "추대", typeLabel: "이성계가 추대", legitimate: false, note: "왕씨 종친 중 이성계 세력이 옹립" },
 
   // ── 조선 ──
-  "taejo-joseon": { father: "환조(추존, 이자춘)", mother: "의혜왕후 최씨", birthOrder: "장남", type: "기타", typeLabel: "건국(역성혁명)", legitimate: false, note: "위화도 회군 → 고려 멸망 → 조선 건국" },
+  "taejo-joseon": { father: "환조(추존, 이자춘)", mother: "의혜왕후 최씨", birthOrder: "장남", type: "건국", typeLabel: "건국(역성혁명)", legitimate: false, note: "위화도 회군 → 고려 멸망 → 조선 건국" },
   "jeongjong": { father: "태조", mother: "신의왕후 한씨", birthOrder: "2남", type: "기타", typeLabel: "왕자의 난 후 즉위", legitimate: false, note: "이방원이 세자로 밀어 즉위시킴" },
   "taejong": { father: "태조", mother: "신의왕후 한씨", birthOrder: "5남", type: "선위", typeLabel: "정종 선위(실질 찬탈)", legitimate: false, note: "1·2차 왕자의 난 주도 후 형 정종에게 양위받음" },
   "sejong": { father: "태종", mother: "원경왕후 민씨", birthOrder: "3남", type: "적통세자", typeLabel: "세자 책봉 후 선위", legitimate: false, note: "형 양녕대군 폐세자 → 충녕대군이 세자 책봉" },

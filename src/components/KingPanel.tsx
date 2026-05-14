@@ -81,17 +81,29 @@ export default function KingPanel({
         </div>
       </div>
 
-      {king.succession && (
+      {king.succession && (() => {
+        const isFounder = king.succession!.type === "건국";
+        const isUsurper = king.succession!.type === "찬탈";
+        const badgeLabel = isFounder ? "창업" : isUsurper ? "찬탈" : king.succession!.legitimate ? "적통" : "비적통";
+        const badgeColor = isFounder ? "var(--color-accent-3)" : isUsurper ? "var(--color-accent)" : king.succession!.legitimate ? "var(--color-accent-2)" : "var(--color-ink-3)";
+        const borderStyle = isFounder
+          ? "1.5px solid var(--color-accent-3)"
+          : isUsurper
+            ? "1.5px solid var(--color-accent)"
+            : king.succession!.legitimate
+              ? "1.5px solid var(--color-accent-2)"
+              : "1.5px dashed var(--color-ink-3)";
+        const bgStyle = isFounder
+          ? "rgba(212,168,71,0.08)"
+          : isUsurper
+            ? "rgba(193,68,68,0.06)"
+            : king.succession!.legitimate
+              ? "rgba(42,90,138,0.06)"
+              : "var(--color-paper-2)";
+        return (
         <div
           className="mt-4 p-3 rounded"
-          style={{
-            border: king.succession.legitimate
-              ? "1.5px solid var(--color-accent-2)"
-              : "1.5px dashed var(--color-ink-3)",
-            background: king.succession.legitimate
-              ? "rgba(42,90,138,0.06)"
-              : "var(--color-paper-2)",
-          }}
+          style={{ border: borderStyle, background: bgStyle }}
         >
           <div className="flex items-center gap-2 mb-1.5">
             <span
@@ -99,18 +111,18 @@ export default function KingPanel({
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--hand)",
-                background: king.succession.legitimate ? "var(--color-accent-2)" : "var(--color-ink-3)",
+                background: badgeColor,
                 color: "var(--color-paper)",
               }}
             >
-              {king.succession.legitimate ? "적통" : "비적통"}
+              {badgeLabel}
             </span>
             <span
               className="font-bold"
               style={{
                 fontSize: "0.85rem",
                 fontFamily: "var(--hand)",
-                color: king.succession.legitimate ? "var(--color-accent-2)" : "var(--color-ink-2)",
+                color: isFounder ? "var(--color-accent-3)" : isUsurper ? "var(--color-accent)" : king.succession!.legitimate ? "var(--color-accent-2)" : "var(--color-ink-2)",
               }}
             >
               {king.succession.typeLabel}
@@ -134,7 +146,8 @@ export default function KingPanel({
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       <Section title="주요 사건" count={`${king.events.length}건`}>
         <ul className="pl-4 m-0 leading-relaxed list-disc" style={{ fontFamily: "'Gowun Dodum', sans-serif", fontSize: "0.85rem" }}>

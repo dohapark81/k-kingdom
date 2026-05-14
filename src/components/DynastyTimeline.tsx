@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Topbar from "@/components/Topbar";
 import SearchModal from "@/components/SearchModal";
@@ -10,7 +10,6 @@ import { dynasties, getDynasty } from "@/data/dynasties";
 
 export default function DynastyTimeline() {
   const params = useParams();
-  const router = useRouter();
   const dynastyId = params.dynastyId as string;
   const dynasty = getDynasty(dynastyId);
 
@@ -106,7 +105,7 @@ export default function DynastyTimeline() {
                     }}
                     onMouseEnter={() => setHoveredKingId(king.id)}
                     onMouseLeave={() => setHoveredKingId(null)}
-                    onClick={() => { setSelectedKingId(king.id); router.push(`/timeline/${dynastyId}/${king.id}`, { scroll: false }); }}
+                    onClick={() => { setSelectedKingId(king.id); window.history.replaceState(null, "", `/timeline/${dynastyId}/${king.id}`); }}
                   >
                     <div className="absolute rounded-full" style={{ left: "-4rem", top: "1.1rem", width: isActive ? 18 : 16, height: isActive ? 18 : 16, background: isActive ? "var(--color-accent)" : king.highlight ? dynasty.color : "var(--color-paper)", border: `2px solid ${isActive ? "var(--color-accent)" : "var(--color-line)"}`, transition: "all 0.15s" }} />
                     <span className="absolute text-right" style={{ left: "-7rem", top: "0.9rem", width: "6rem", fontSize: "0.9rem", fontFamily: "'Nanum Pen Script', cursive", color: "var(--color-ink-2)" }}>{king.reignStart}–{king.reignEnd}</span>

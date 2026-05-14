@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Topbar from "@/components/Topbar";
 import SearchModal from "@/components/SearchModal";
@@ -10,14 +10,15 @@ import { dynasties, getDynasty, getKing } from "@/data/dynasties";
 
 export default function KingTimeline() {
   const params = useParams();
-  const router = useRouter();
   const dynastyId = params.dynastyId as string;
-  const kingId = params.kingId as string;
+  const initialKingId = params.kingId as string;
   const dynasty = getDynasty(dynastyId);
-  const king = getKing(dynastyId, kingId);
 
+  const [selectedKingId, setSelectedKingId] = useState(initialKingId);
   const [hoveredKingId, setHoveredKingId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const king = getKing(dynastyId, selectedKingId);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -43,7 +44,7 @@ export default function KingTimeline() {
     );
   }
 
-  const activeKingId = hoveredKingId || kingId;
+  const activeKingId = hoveredKingId || selectedKingId;
   const activeKing = dynasty.kings.find((k) => k.id === activeKingId) || king;
 
   return (
@@ -108,7 +109,7 @@ export default function KingTimeline() {
                     }}
                     onMouseEnter={() => setHoveredKingId(k.id)}
                     onMouseLeave={() => setHoveredKingId(null)}
-                    onClick={() => router.push(`/timeline/${dynastyId}/${k.id}`, { scroll: false })}
+                    onClick={() => { setSelectedKingId(k.id); window.history.replaceState(null, "", `/timeline/${dynastyId}/${k.id}`); }}
                   >
                     <div className="absolute rounded-full" style={{ left: "-4rem", top: "1.1rem", width: isActive ? 18 : 16, height: isActive ? 18 : 16, background: isActive ? "var(--color-accent)" : k.highlight ? dynasty.color : "var(--color-paper)", border: `2px solid ${isActive ? "var(--color-accent)" : "var(--color-line)"}`, transition: "all 0.15s" }} />
                     <span className="absolute text-right" style={{ left: "-7rem", top: "0.9rem", width: "6rem", fontSize: "0.9rem", fontFamily: "'Nanum Pen Script', cursive", color: "var(--color-ink-2)" }}>{k.reignStart}–{k.reignEnd}</span>
