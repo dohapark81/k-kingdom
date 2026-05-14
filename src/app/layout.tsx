@@ -2,9 +2,50 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { FontSizeProvider } from "@/components/FontSizeProvider";
 
+const siteUrl = "https://dohapark81.github.io/k-kingdom";
+
 export const metadata: Metadata = {
-  title: "한국역사 타임라인 — 고려·조선",
-  description: "고려 34대, 조선 27대 왕의 역사를 타임라인으로 한눈에. 왕을 따라 사건과 평가를 살펴보세요.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "한국역사 타임라인 — 고려·조선 왕조",
+    template: "%s | 한국역사 타임라인",
+  },
+  description:
+    "고려 34대, 조선 27대 왕의 역사를 타임라인으로 한눈에. 왕별 주요 사건·업적·과오를 살펴보고, 동시대 세계사와 비교해보세요.",
+  keywords: [
+    "한국역사",
+    "고려",
+    "조선",
+    "타임라인",
+    "한국사",
+    "왕조",
+    "세종",
+    "태조",
+    "정조",
+    "임진왜란",
+    "훈민정음",
+    "역사공부",
+  ],
+  authors: [{ name: "dohapark" }],
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: siteUrl,
+    siteName: "한국역사 타임라인",
+    title: "한국역사 타임라인 — 고려·조선 왕조",
+    description:
+      "고려 34대, 조선 27대 왕의 역사를 타임라인으로 한눈에. 왕별 주요 사건·업적·과오, 동시대 세계사 비교.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "한국역사 타임라인 — 고려·조선 왕조",
+    description:
+      "고려 34대, 조선 27대 왕의 역사를 타임라인으로 한눈에.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
